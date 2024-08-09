@@ -1,0 +1,51 @@
+{
+  "replace": true,
+  "type": "tetra:basic_major_module",
+  "slots": [
+    "gunblade/receiver"
+  ],
+  "improvements": [
+  ],
+  "variants": [
+    {
+      "materials": [
+        "tetra:wood/",
+        "tetra:stone/",
+        "tetra:metal/",
+        "tetra:gem/",
+        "tetra:bone/"
+      ],
+      "key": "basic_receiver/",
+      "attributes": {
+        "generic.attack_speed": -0.2
+      },
+      "aspects": {
+        "crossbow": 2,
+        "breakable": 2
+      },
+      "durability": 7,
+      "integrity": 1,
+      "extract": {
+        "secondaryAttributes": {
+        },
+        "durability": 0.3,
+        "integrity": 1,
+        "magicCapacity": 1,
+        "glyph": {
+          "textureX": 16
+        },
+        "availableTextures": [
+          "default",
+          "metal",
+          "bone",
+          "bright"
+        ],
+        "models": [
+          {
+            "location": "tetra:item/module/single/handle/basic/"
+          }
+        ]
+      }
+    }
+  ]
+}
