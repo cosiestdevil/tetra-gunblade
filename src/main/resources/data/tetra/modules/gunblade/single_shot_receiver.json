@@ -1,6 +1,7 @@
 {
   "replace": true,
   "type": "tetra:basic_major_module",
+  "namePriority": "HIGHEST",
   "slots": [
     "gunblade/receiver"
   ],
@@ -15,7 +16,7 @@
         "tetra:gem/",
         "tetra:bone/"
       ],
-      "key": "basic_receiver/",
+      "key": "single_shot_receiver/",
       "attributes": {
         "generic.attack_speed": -0.2
       },

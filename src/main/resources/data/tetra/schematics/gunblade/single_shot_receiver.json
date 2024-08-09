@@ -23,8 +23,8 @@
         "tetra:bone/"
       ],
       "countFactor": 2,
-      "moduleKey": "gunblade/receiver",
-      "moduleVariant": "basic_receiver/"
+      "moduleKey": "gunblade/single_shot_receiver",
+      "moduleVariant": "single_shot_receiver/"
     }
   ]
 }
