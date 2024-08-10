@@ -24,6 +24,8 @@ import se.mickelus.tetra.module.SchematicRegistry;
 import se.mickelus.tetra.module.schematic.RepairSchematic;
 import se.mickelus.tetra.properties.TetraAttributes;
 
+import java.util.Optional;
+
 public class ModularGunBlade extends ItemModularHandheld {
 
     private static final GuiModuleOffsets majorOffsets = new GuiModuleOffsets(new int[]{-13, 0, -13, 18, 4, 0});
@@ -58,21 +60,27 @@ public class ModularGunBlade extends ItemModularHandheld {
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         if (!world.isClientSide) {
             ItemStack stack = player.getItemInHand(hand);
-            int multishotEnchantLevel = stack.getEnchantmentLevel(Enchantments.MULTISHOT) * 3;
-            int count = Math.max(this.getEffectLevel(stack, ItemEffect.multishot) + multishotEnchantLevel, 1);
-            double spread = (double) this.getEffectEfficiency(stack, ItemEffect.multishot);
-            for (int i = 0; i < count; ++i) {
-                double yaw = (double) player.getYRot() - spread * (double) (count - 1) / 2.0 + spread * (double) i;
-                boolean isDupe = player.getAbilities().instabuild || count > 1 && i != count / 2;
-                this.fireProjectile(world, stack, new ItemStack(Items.ARROW,1), player, yaw, isDupe);
+            var ammoStack = getAmmoStack(player);
+            if (ammoStack.isPresent()) {
+                int multishotEnchantLevel = stack.getEnchantmentLevel(Enchantments.MULTISHOT) * 3;
+                int count = Math.max(this.getEffectLevel(stack, ItemEffect.multishot) + multishotEnchantLevel, 1);
+                double spread = (double) this.getEffectEfficiency(stack, ItemEffect.multishot);
+                for (int i = 0; i < count; ++i) {
+                    double yaw = (double) player.getYRot() - spread * (double) (count - 1) / 2.0 + spread * (double) i;
+                    boolean isDupe = player.getAbilities().instabuild || count > 1 && i != count / 2;
+                    this.fireProjectile(world, stack, ammoStack.get(), player, yaw, isDupe);
+                }
+                stack.hurtAndBreak(1, player, (p) -> {
+                    p.broadcastBreakEvent(p.getUsedItemHand());
+                });
+                this.applyUsageEffects(player, stack, 1.0);
+                world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
             }
-            stack.hurtAndBreak(1, player, (p) -> {
-                p.broadcastBreakEvent(p.getUsedItemHand());
-            });
-            this.applyUsageEffects(player, stack, 1.0);
-            world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
         }
         return super.use(world, player, hand);
+    }
+    public static Optional<ItemStack> getAmmoStack(Player player){
+        return player.getInventory().items.stream().filter(i->i.is(Items.IRON_NUGGET)).findFirst();
     }
     public static float getProjectileVelocity(double strength, float velocityBonus) {
         float velocity = (float)Math.max(1.0, 1.0 + (strength - 6.0) * 0.125);
@@ -80,10 +88,13 @@ public class ModularGunBlade extends ItemModularHandheld {
         return velocity;
     }
     protected void fireProjectile(Level world, ItemStack crossbowStack, ItemStack ammoStack, Player player, double yaw, boolean isDupe) {
-        double strength = this.getAttributeValue(crossbowStack, (Attribute) TetraAttributes.drawStrength.get());
+        double strength = 4;//Get from ammo stack, possible new data json?
         float velocityBonus = (float)this.getEffectLevel(crossbowStack, ItemEffect.velocity) / 100.0F;
         float projectileVelocity = getProjectileVelocity(strength, velocityBonus);
-        ArrowItem ammoItem = (ArrowItem) CastOptional.cast(ammoStack.getItem(), ArrowItem.class).orElse((ArrowItem)Items.ARROW);
+        if(!isDupe) {
+            ammoStack.setCount(ammoStack.getCount() - 1);
+        }
+        ArrowItem ammoItem = CastOptional.cast(ammoStack.getItem(), ArrowItem.class).orElse((ArrowItem)Items.ARROW);
         AbstractArrow projectile = ammoItem.createArrow(world, ammoStack, player);
         projectile.setSoundEvent(SoundEvents.CROSSBOW_HIT);
         projectile.setShotFromCrossbow(true);
