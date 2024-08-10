@@ -2,5 +2,6 @@
   "tetra/schematic/gunblade/single_shot_receiver.name":"Single Shot Receiver",
   "tetra.slot.gunblade/receiver": "Receiver",
   "tetra.variant.single_shot_receiver/netherite": "Netherite Single Shot",
-  "tetra.module.gunblade/single_shot_receiver.item_name": "Gunblade"
+  "tetra.module.gunblade/single_shot_receiver.item_name": "Gunblade",
+  "tetra.gunblade.binding.reload": "Reload Gunblade"
 }

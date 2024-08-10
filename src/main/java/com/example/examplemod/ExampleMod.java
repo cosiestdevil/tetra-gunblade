@@ -3,6 +3,8 @@ package com.example.examplemod;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
@@ -10,8 +12,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -25,6 +29,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import se.mickelus.mutil.network.PacketHandler;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(ExampleMod.MODID)
@@ -48,9 +54,11 @@ public class ExampleMod
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(EXAMPLE_ITEM.get().getDefaultInstance()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
             }).build());
-
+    public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(ForgeRegistries.ATTRIBUTES, MODID);
+    public static final RegistryObject<Attribute> MAG_SIZE = ATTRIBUTES.register("mag_size",()-> new RangedAttribute("mag_size",1,1,32));
+    public static PacketHandler packetHandler;
     public ExampleMod()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -64,7 +72,7 @@ public class ExampleMod
         ITEMS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
-
+        ATTRIBUTES.register(modEventBus);
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -73,6 +81,7 @@ public class ExampleMod
 
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        packetHandler = new PacketHandler("tetra_gunblade", "main", "1");
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -86,6 +95,8 @@ public class ExampleMod
         LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
 
         Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
+
+        packetHandler.registerPacket(ReloadPacket.class,ReloadPacket::new);
     }
 
     // Add the example block item to the building blocks tab
@@ -109,6 +120,28 @@ public class ExampleMod
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+        }
+        @SubscribeEvent
+        public static void registerBindings(RegisterKeyMappingsEvent event) {
+            LOGGER.info("HELLO FROM REGISTER KEYMAPS");
+            event.register(KeyMappings.reloadMapping);
+        }
+
+    }
+    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+    public static class ClientEvents{
+
+        @SubscribeEvent
+        public static void onClientTick(TickEvent.ClientTickEvent event){
+            if (event.phase == TickEvent.Phase.END) {
+                // Only call code once as the tick event is called twice every tick
+                while (KeyMappings.reloadMapping.consumeClick()) {
+                    // Execute logic to perform on click here
+                    LOGGER.info("RELOAD PRESSED!");
+                    var packet = new ReloadPacket(InteractionHand.MAIN_HAND);
+                    packetHandler.sendToServer(packet);
+                }
+            }
         }
     }
 }

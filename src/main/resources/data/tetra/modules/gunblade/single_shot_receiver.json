@@ -18,7 +18,8 @@
       ],
       "key": "single_shot_receiver/",
       "attributes": {
-        "generic.attack_speed": -0.2
+        "generic.attack_speed": -0.2,
+        "tetra_gunblade:mag_size":1
       },
       "aspects": {
         "crossbow": 2,
@@ -27,6 +28,9 @@
       "durability": 7,
       "integrity": 1,
       "extract": {
+        "primaryAttributes": {
+
+        },
         "secondaryAttributes": {
         },
         "durability": 0.3,
