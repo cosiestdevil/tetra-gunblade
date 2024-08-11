@@ -30,3 +30,4 @@ jobs:
           artifacts: "build/libs/*.jar"
           generateReleaseNotes: true
           prerelease: true
+          tag: ${{steps.version.outputs.mod_version}}
