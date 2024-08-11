@@ -1,0 +1,11 @@
+name: Dev Builds
+on: 
+    push:
+        branches:
+            - "main"
+jobs:
+    Build:
+        runs-on: ubuntu-latest
+        steps:
+            - run: chmod +x ./gradlew
+            - run: ./gradlew build
