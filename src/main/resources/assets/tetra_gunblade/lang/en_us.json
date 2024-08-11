@@ -1,7 +1,22 @@
 {
-  "tetra/schematic/gunblade/single_shot_receiver.name":"Single Shot Receiver",
+  "tetra/schematic/gunblade/single_shot_receiver.name":"Bolt Action Receiver",
+  "tetra/schematic/gunblade/revolver_receiver.name":"Revolver Receiver",
+  "tetra/schematic/gunblade/semi_auto_receiver.name":"Semi-Auto Receiver",
+  "tetra/schematic/gunblade/single_shot_receiver.slot1":"Receiver Material",
+  "tetra/schematic/gunblade/revolver_receiver.slot1":"Receiver Material",
+  "tetra/schematic/gunblade/semi_auto_receiver.slot1":"Receiver Material",
+  "tetra/schematic/gunblade/single_shot_receiver.description":"Bolt Action Receiver only allows a single shot before needing to be reloaded",
+  "tetra/schematic/gunblade/revolver_receiver.description":"Revolver Receiver allows 6 shots to be fired before needing to be reloaded",
+  "tetra/schematic/gunblade/semi_auto_receiver.description":"Semi-Auto Receiver allows 16 shots to be fired before needing to be reloaded",
   "tetra.slot.gunblade/receiver": "Receiver",
-  "tetra.variant.single_shot_receiver/netherite": "Netherite Single Shot",
-  "tetra.module.gunblade/single_shot_receiver.item_name": "Gunblade",
-  "tetra.gunblade.binding.reload": "Reload Gunblade"
+  "tetra.module.gunblade/single_shot_receiver.item_name": "Bolt Action Gunblade",
+  "tetra.module.gunblade/revolver_receiver.item_name": "Revolver Gunblade",
+  "tetra.module.gunblade/semi_auto_receiver.item_name": "Semi-Auto Gunblade",
+  "tetra.gunblade.binding.reload": "Reload Gunblade",
+  "tetra.variant.single_shot_receiver/iron": "Iron Bolt Action",
+  "tetra.variant.single_shot_receiver/netherite": "Netherite Bolt Action",
+  "tetra.variant.revolver_receiver/iron": "Iron Revolver",
+  "tetra.variant.revolver_receiver/netherite": "Netherite Revolver",
+  "tetra.variant.semi_auto_receiver/iron": "Iron Semi-Auto",
+  "tetra.variant.semi_auto_receiver/netherite": "Netherite Semi-Auto"
 }

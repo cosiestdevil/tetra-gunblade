@@ -6,7 +6,8 @@
   "materialSlotCount": 1,
   "displayType": "major",
   "glyph": {
-    "textureLocation": "tetra_gunblade:textures/gui/glyph.png"
+    "textureLocation": "tetra_gunblade:textures/gui/glyph.png",
+    "textureX": 16
   },
   "translation": {
     "primaryAttributes": {
@@ -26,8 +27,8 @@
         "tetra:bone/"
       ],
       "countFactor": 2,
-      "moduleKey": "gunblade/single_shot_receiver",
-      "moduleVariant": "single_shot_receiver/"
+      "moduleKey": "gunblade/revolver_receiver",
+      "moduleVariant": "revolver_receiver/"
     }
   ]
 }

@@ -58,6 +58,7 @@ public class ExampleMod
             }).build());
     public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(ForgeRegistries.ATTRIBUTES, MODID);
     public static final RegistryObject<Attribute> MAG_SIZE = ATTRIBUTES.register("mag_size",()-> new RangedAttribute("mag_size",1,1,32));
+    public static final RegistryObject<Attribute> SHOT_DELAY = ATTRIBUTES.register("shot_delay",()-> new RangedAttribute("shot_delay",80,0,80));
     public static PacketHandler packetHandler;
     public ExampleMod()
     {

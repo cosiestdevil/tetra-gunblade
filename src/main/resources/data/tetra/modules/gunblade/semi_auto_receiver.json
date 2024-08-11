@@ -16,11 +16,11 @@
         "tetra:gem/",
         "tetra:bone/"
       ],
-      "key": "single_shot_receiver/",
+      "key": "semi_auto_receiver/",
       "attributes": {
         "generic.attack_speed": -0.2,
-        "tetra_gunblade:mag_size":1,
-        "tetra_gunblade:shot_delay": 40
+        "tetra_gunblade:mag_size":16,
+        "tetra_gunblade:shot_delay": 10
       },
       "aspects": {
         "crossbow": 2,
@@ -38,7 +38,7 @@
         "integrity": 1,
         "magicCapacity": 1,
         "glyph": {
-          "textureLocation": "tetra_gunblade:textures/gui/glyph.png"
+          "textureX": 16
         },
         "availableTextures": [
           "default",

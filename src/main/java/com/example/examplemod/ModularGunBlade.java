@@ -6,6 +6,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -62,31 +63,40 @@ public class ModularGunBlade extends ItemModularHandheld {
     }
 
     @Override
+    public int getUseDuration(ItemStack itemStack) {
+        return super.getUseDuration(itemStack);
+    }
+
+    @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!world.isClientSide) {
-            var ammoStack = getLoadedAmmoStack(stack);
-            if (!ammoStack.isEmpty()) {
-                int multishotEnchantLevel = stack.getEnchantmentLevel(Enchantments.MULTISHOT) * 3;
-                int count = Math.max(this.getEffectLevel(stack, ItemEffect.multishot) + multishotEnchantLevel, 1);
-                double spread = this.getEffectEfficiency(stack, ItemEffect.multishot);
-                for (int i = 0; i < count; ++i) {
-                    double yaw = (double) player.getYRot() - spread * (double) (count - 1) / 2.0 + spread * (double) i;
-                    boolean isDupe = player.getAbilities().instabuild || count > 1 && i != count / 2;
-                    this.fireProjectile(world, stack, ammoStack, player, yaw, isDupe);
-                    setLoadedAmmoStack(stack,ammoStack);
+            if (canShoot(world,stack)) {
+                var ammoStack = getLoadedAmmoStack(stack);
+                if (!ammoStack.isEmpty()) {
+                    int multishotEnchantLevel = stack.getEnchantmentLevel(Enchantments.MULTISHOT) * 3;
+                    int count = Math.max(this.getEffectLevel(stack, ItemEffect.multishot) + multishotEnchantLevel, 1);
+                    double spread = this.getEffectEfficiency(stack, ItemEffect.multishot);
+                    for (int i = 0; i < count; ++i) {
+                        double yaw = (double) player.getYRot() - spread * (double) (count - 1) / 2.0 + spread * (double) i;
+                        boolean isDupe = player.getAbilities().instabuild || count > 1 && i != count / 2;
+                        this.fireProjectile(world, stack, ammoStack, player, yaw, isDupe);
+                        setLoadedAmmoStack(stack, ammoStack);
+                    }
+                    stack.hurtAndBreak(1, player, (p) -> {
+                        p.broadcastBreakEvent(p.getUsedItemHand());
+                    });
+                    this.applyUsageEffects(player, stack, 1.0);
+                    setEarliestNextShot(world,stack);
+                    world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
+                } else {
+                    reloadAmmo(player, stack);
+                    setEarliestNextShot(world,stack);
+                    player.releaseUsingItem();
                 }
-                stack.hurtAndBreak(1, player, (p) -> {
-                    p.broadcastBreakEvent(p.getUsedItemHand());
-                });
-                this.applyUsageEffects(player, stack, 1.0);
-                world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
-            }else{
-                reloadAmmo(player,stack);
-                player.releaseUsingItem();
             }
         }
-        return InteractionResultHolder.consume(stack);
+        return InteractionResultHolder.sidedSuccess(stack,world.isClientSide());
     }
 
     public static ItemStack getAmmoStack(Player player) {
@@ -183,5 +193,31 @@ public class ModularGunBlade extends ItemModularHandheld {
         if (!oldAmmo.isEmpty()){
             player.getInventory().add(oldAmmo);
         }
+    }
+    public void setEarliestNextShot(Level world,ItemStack gunblade){
+        var tag = gunblade.getTag();
+        if (tag == null) {
+            tag = new CompoundTag();
+        }
+        var shot_delay = (long)this.getAttributeValue(gunblade, ExampleMod.SHOT_DELAY.get());
+        var shot_delay_tag = tag.getCompound("shot_delay");
+        shot_delay_tag.putLong("earliest_next_shot",world.getGameTime() + shot_delay);
+        tag.put("shot_delay", shot_delay_tag);
+        gunblade.setTag(tag);
+    }
+
+    public boolean canShoot(Level world, ItemStack gunblade) {
+        var tag = gunblade.getTag();
+        if (tag == null) {
+            return false;
+        }
+        var shot_delay_tag = tag.getCompound("shot_delay");
+        if (shot_delay_tag.isEmpty()) {
+            return true;
+        }
+        var earliest_next_shot = shot_delay_tag.getLong("earliest_next_shot");
+        var current_time = world.getGameTime();
+        LOGGER.info("Current Time: {}, Earliest Next Shot:{}",current_time,earliest_next_shot);
+        return current_time>= earliest_next_shot;
     }
 }

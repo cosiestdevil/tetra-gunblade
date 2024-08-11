@@ -5,9 +5,6 @@
   ],
   "materialSlotCount": 1,
   "displayType": "major",
-  "glyph": {
-    "textureLocation": "tetra_gunblade:textures/gui/glyph.png"
-  },
   "translation": {
     "primaryAttributes": {
       "generic.attack_damage": 3
@@ -26,8 +23,8 @@
         "tetra:bone/"
       ],
       "countFactor": 2,
-      "moduleKey": "gunblade/single_shot_receiver",
-      "moduleVariant": "single_shot_receiver/"
+      "moduleKey": "gunblade/semi_auto_receiver",
+      "moduleVariant": "semi_auto_receiver/"
     }
   ]
 }
