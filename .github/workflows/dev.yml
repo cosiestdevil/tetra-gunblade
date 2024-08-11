@@ -21,9 +21,9 @@ jobs:
         run: echo "mod_version=$(git describe --long | sed  -r -e's/([0-9]+\.[0-9]+)\-([0-9]+).*/\1.\2/')"
       - name: Build
         run: ./gradlew -Pmod_version='${{steps.version.outputs.mod_version}}' build
+      - run: git tag ${{steps.version.outputs.mod_version}}
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "build/libs/*.jar"
           generateReleaseNotes: true
           prerelease: true
-          commit: HEAD
