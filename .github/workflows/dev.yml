@@ -13,17 +13,17 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
       - run: chmod +x ./gradlew
+      - name: Version Calc
+        id: version
+        run: echo "mod_version=$(git describe --long | sed  -r -e's/([0-9]+\.[0-9]+)\-([0-9]+).*/\1.\2/')"
       - name: Build
-        run: ./gradlew build
-      - name: Pre-Release
-        uses: softprops/action-gh-release@v2
+        run: ./gradlew -Pmod_version='${{steps.version.outputs.mod_version}}' build
+      - uses: ncipollo/release-action@v1
         with:
-          files: |
-            build/libs/*.jar
-          generate_release_notes: true
+          artifacts: "build/libs/*.jar"
+          generateReleaseNotes: true
           prerelease: true
-          
+          commit: HEAD
